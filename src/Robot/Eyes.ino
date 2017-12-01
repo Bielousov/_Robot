@@ -1,18 +1,5 @@
 #include "LedControl.h"
 
-#define LEFT_EYE 0   // Left eye LED position in array
-#define RIGHT_EYE 1  // Right eye LED position in array
-
-const int EYES_BRIGHTNESS = 1; // LED brightness {1 ... 16}
-const int BLINK_ANIMATION_DURATION = 1000/30; // fps
-const int BLINK_CLOSED_DURATION = 200; // closed eye delay
-
-const int eyeBlinkAnimationLength = 3;
-
-byte pupilSize[2] = {2, 3}; // pupil size
-byte pupilPosition[2] = {0, 0}; // pupil position
-
-
 /*
  * My eyes are an array of 2x 8x8 MAX72XX LED matrixes
  * -----
@@ -22,13 +9,37 @@ byte pupilPosition[2] = {0, 0}; // pupil position
  * pin 10 is connected to LOAD 
  * I have 2x MAX72XX.
  */
-LedControl led = LedControl(12,11,10, 2);
+LedControl led = LedControl(
+    PIN_EYES_LED_DATA,
+    PIN_EYES_LED_CLK,
+    PIN_EYES_LED_LOAD,
+    2
+);
+
+#define LEFT_EYE    0   // Left eye LED position in array
+#define RIGHT_EYE   1  // Right eye LED position in array
+
+const byte EYES_OPEN_ANIMATION_SEQUENCE[5] = {0, 1, 2, 3, 4};
+const byte EYES_CLOSE_ANIMATION_SEQUENCE[5] = {4, 3, 2, 1, 0};
+const short EYES_BLINK_INTERVAL[2] = {300, 6000};
+
+struct EYES_OPTIONS {
+  byte brightness;
+  byte fps;
+};
+
+EYES_OPTIONS eyesOptions = {
+  1,        // LED Brightness
+  1000/24   // Animation in FPS
+};
 
 // Eyes thread
-ThreadController eyesAnimation = ThreadController();
+ThreadController eyesThread = ThreadController();
+Thread eyesAnimationThread = Thread();
 Thread eyesBlinkThread = Thread();
 
-void setupEyes() {
+
+void initEyes() {
   /*
    * The MAX72XX is in power-saving mode on startup,
    * we have to do a wakeup call
@@ -37,77 +48,92 @@ void setupEyes() {
   led.shutdown(RIGHT_EYE, false);
 
   /* Dim brightness */
-  led.setIntensity(LEFT_EYE, EYES_BRIGHTNESS);
-  led.setIntensity(RIGHT_EYE, EYES_BRIGHTNESS);
+  led.setIntensity(LEFT_EYE, eyesOptions.brightness);
+  led.setIntensity(RIGHT_EYE, eyesOptions.brightness);
 
   /* Clear display */
   led.clearDisplay(LEFT_EYE);
   led.clearDisplay(RIGHT_EYE);
 
   /* Init animation threads */
-  eyesBlinkThread.onRun(blinkEyes);
-  
+  setupEyesThread();
+ 
+  /* Start by opening my eyes */
   openEyes();
 }
+
+
 void closeEyes() {
-  drawEyesBlinkAnimation(0, eyeBlinkAnimationLength - 1);
-  drawEyes(eyeClosedBitmap);
+  // Stop blinking when my eye are closed
+  eyesThread.remove(&eyesBlinkThread);
+
+  // Add animation sequence to queue
+  addAnimationSequence(eyeBlinkAnimationBitmap, EYES_CLOSE_ANIMATION_SEQUENCE, sizeof(EYES_CLOSE_ANIMATION_SEQUENCE));
 }
 
 void openEyes() {
-  drawEyesBlinkAnimation(eyeBlinkAnimationLength - 1, 0);
-  drawEyes(eyeOpenedBitmap);
+  // Add animation sequence to queue
+  addAnimationSequence(eyeBlinkAnimationBitmap, EYES_OPEN_ANIMATION_SEQUENCE, sizeof(EYES_OPEN_ANIMATION_SEQUENCE));
 
   // When my eyes are open I want to blink
-  int openEyeDuration = random(1500, 6000);
+  makeBlinkDecision();
+}
+
+
+void makeBlinkDecision() {
+  int openEyeDuration = random(EYES_BLINK_INTERVAL[0], EYES_BLINK_INTERVAL[1]);
   eyesBlinkThread.setInterval(openEyeDuration);
-  eyesAnimation.add(&eyesBlinkThread);
- }
+  eyesThread.add(&eyesBlinkThread);
+}
 
-void blinkEyes() {
-  eyesAnimation.remove(&eyesBlinkThread);
+
+/*
+ * Thread events
+ */
+
+void onEyesAnimation() {
+  if (eyesAnimationQueue.size() == 0) {
+    return;
+  }
   
+  byte* frameBitmap = popFrameFromAnimationQueue();
+  drawEyes(frameBitmap);
+}
+
+void onEyesBlink() {
   closeEyes();
-
-  delay(BLINK_CLOSED_DURATION);
-  
   openEyes();
 }
 
 /*
  * Render functions
  */
- void drawEyes(const byte* bitmap) {
-    led.setBitmap(LEFT_EYE, bitmap);
-    led.setBitmap(RIGHT_EYE, bitmap);
-    // drawPupils();
+void drawEyes(byte* bitmap) {
+    drawEye(LEFT_EYE, bitmap);
+    drawEye(RIGHT_EYE, bitmap);
 }
 
-void drawEyesBlinkAnimation(int startFrame, int endFrame) {
-  int frame = startFrame;
-
-  while (frame != endFrame) {
-    drawEyes(eyeBlinkAnimation[frame]);
-    delay(BLINK_ANIMATION_DURATION);
-
-    if (startFrame < endFrame) {
-      frame++;
-    } else {
-      frame--;
-    }
+void drawEye(byte eye, byte* bitmap) {
+  for(int row=0; row<8; row++) {
+      led.setRow(eye, row, bitmap[row]);
   }
 }
 
-void drawPupils() {
-    byte pupilPositionLeft = 7 / 2 + pupilPosition[0];
-    byte pupilPositionTop = 7 / 2 + pupilPosition[1];
-    
-    led.setRectangle(LEFT_EYE, pupilPositionTop, pupilPositionLeft, pupilSize[0], pupilSize[1], false);
-    led.setRectangle(RIGHT_EYE, pupilPositionTop, pupilPositionLeft, pupilSize[0], pupilSize[1], false);
+/*
+ * Thread process
+ */
+void setupEyesThread() {
+  // Animation thread runs at 24 FPS
+  eyesAnimationThread.onRun(onEyesAnimation);
+  eyesAnimationThread.setInterval(eyesOptions.fps);
+  eyesThread.add(&eyesAnimationThread);
+
+  // Blink thread is a one off, added on demand
+  eyesBlinkThread.onRun(onEyesBlink);
 }
 
 void runEyesThread() {
-  if(eyesAnimation.shouldRun())
-    eyesAnimation.run();
+  if(eyesThread.shouldRun())
+    eyesThread.run();
 }
 
