@@ -1,11 +1,15 @@
 #include <LEDMatrixDriver.hpp>
+#include <QList.h>
  
 // Eyes thread
 Thread eyesAnimationThread = Thread();
 
-const uint8_t EYES_ANIMATION_FPS = 1000/24;    // Animation frequency, in FPS
+// Eyes Animation Queue
+QList <byte*> eyesAnimationQueue;
+
+const uint8_t EYES_ANIMATION_FPS = 1000 / 24;    // Animation frequency, in FPS -> ms
 const uint8_t EYES_BRIGHTNESS = 0;             // LED Brightness
-const uint8_t EYES_ORIGIN_POSITION = 3;         // Define LED matrix center in 0-based coordinates
+const uint8_t EYES_ORIGIN_POSITION = 8 / 2 - 1;         // Define LED matrix center in 0-based coordinates (3)
 
 // Animation frame sequences
 const uint8_t EYES_OPEN_ANIMATION_SEQUENCE[5] = {0, 1, 2, 3, 4};
@@ -57,7 +61,7 @@ void initEyes() {
 
 void closeEyes() {
     // Stop blinking when my eye are closed
-    setEyesBlinkAllowed(false);
+    resetEyesBlinkDecision(false);
   
     // Add animation sequence to queue
     addAnimationSequence(eyeBlinkAnimationBitmap, EYES_CLOSE_ANIMATION_SEQUENCE, sizeof(EYES_CLOSE_ANIMATION_SEQUENCE));
@@ -68,7 +72,7 @@ void openEyes() {
     addAnimationSequence(eyeBlinkAnimationBitmap, EYES_OPEN_ANIMATION_SEQUENCE, sizeof(EYES_OPEN_ANIMATION_SEQUENCE));
   
     // When my eyes are open I want to blink
-    setEyesBlinkAllowed(true);
+    resetEyesBlinkDecision(true);
 }
 
 /*
@@ -151,4 +155,30 @@ void onEyesAnimation() {
     drawEyes(frameBitmap);
 }
 
+
+/*
+ * Animation Queue
+ * ===============
+ */
+ void addAnimationSequence(const byte animationBitmap[][8], const uint8_t animationSequence[], const uint8_t animationSequenceSize) {
+    for (int i = 0; i < animationSequenceSize; i++) {
+        byte frameIndex = animationSequence[i];
+        byte* frameBitmap = (byte*) animationBitmap[frameIndex];
+        pushFrameToAnimationQueue(frameBitmap);
+    }
+}
+
+void pushFrameToAnimationQueue(byte frameBitmap[8]) {
+    eyesAnimationQueue.push_back(frameBitmap);
+}
+
+byte* popFrameFromAnimationQueue() {
+    byte* frameBitmap = eyesAnimationQueue.front();
+    eyesAnimationQueue.pop_front();
+    return frameBitmap;
+}
+
+bool isAnimationQueueEmpty() {
+    return eyesAnimationQueue.size() == 0;
+}
 

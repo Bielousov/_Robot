@@ -57,7 +57,7 @@ void makeDecisionEyesBlink(uint8_t weight = 0) {
     makeDecision(&eyesBlink, onEyesBlink);
 };
 
-void setEyesBlinkAllowed(bool allowed) {
+void resetEyesBlinkDecision(bool allowed) {
     if (eyesBlink.allowed == allowed) {
         return;
     }
