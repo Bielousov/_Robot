@@ -1,9 +1,9 @@
 #include <Thread.h>
 #include <ThreadController.h>
 
-#define PIN_EYES_LED_LOAD   10
-#define PIN_EYES_LED_CLK    11
-#define PIN_EYES_LED_DATA   12
+#define PIN_EYES_LED_CS     9
+#define PIN_EYES_LED_DIN    11
+#define PIN_EYES_LED_CLK    13
 
 void setup() {
   // Serial.begin(9600);
