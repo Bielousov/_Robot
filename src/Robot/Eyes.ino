@@ -1,5 +1,6 @@
 #include <LEDMatrixDriver.hpp>
 
+const byte EYE_ORIGIN_POSITION = 3;
 const byte EYES_OPEN_ANIMATION_SEQUENCE[5] = {0, 1, 2, 3, 4};
 const byte EYES_CLOSE_ANIMATION_SEQUENCE[5] = {4, 3, 2, 1, 0};
 const short EYES_BLINK_INTERVAL[2] = {300, 6000};
@@ -15,6 +16,9 @@ const short EYES_BLINK_INTERVAL[2] = {300, 6000};
  */
 LEDMatrixDriver lmd(1, PIN_EYES_LED_CS);
 
+/*
+ * Default eyes options
+ */
 struct EYES_OPTIONS {
   byte brightness;
   byte fps;
@@ -25,10 +29,25 @@ EYES_OPTIONS eyesOptions = {
   1000/24   // Animation in FPS
 };
 
+/*
+ * Default pupils properties
+ */
+struct PUPILS {
+  byte size[2];
+  int8_t position[2];
+};
+
+PUPILS pupils = {
+  {2, 2},   // Pupils size
+  {0, 1}   // Pupils position, center based
+};
+
+
 // Eyes thread
 ThreadController eyesThread = ThreadController();
 Thread eyesAnimationThread = Thread();
 Thread eyesBlinkThread = Thread();
+Thread eyesPupilsThread = Thread();
 
 /*
  * Setup
@@ -37,12 +56,13 @@ void initEyes() {
   lmd.setEnabled(true);
   lmd.setIntensity(eyesOptions.brightness);
   lmd.clear();
-
+  
   /* Init animation threads */
   setupEyesThread();
 
   /* Start by opening my eyes */
   openEyes();
+  onPupilsMove();
 }
 
 
@@ -63,17 +83,9 @@ void openEyes() {
 }
 
 
-void makeBlinkDecision() {
-  int openEyeDuration = random(EYES_BLINK_INTERVAL[0], EYES_BLINK_INTERVAL[1]);
-  eyesBlinkThread.setInterval(openEyeDuration);
-  eyesThread.add(&eyesBlinkThread);
-}
-
-
 /*
  * Thread events
  */
-
 void onEyesAnimation() {
   if (eyesAnimationQueue.size() == 0) {
     return;
@@ -83,21 +95,74 @@ void onEyesAnimation() {
   drawEyes(frameBitmap);
 }
 
+
+/*
+ * Blinking
+ */
+void makeBlinkDecision() {
+  int openEyeDuration = random(EYES_BLINK_INTERVAL[0], EYES_BLINK_INTERVAL[1]);
+  eyesBlinkThread.setInterval(openEyeDuration);
+  eyesThread.add(&eyesBlinkThread);
+}
+
 void onEyesBlink() {
   closeEyes();
   openEyes();
 }
 
 /*
- * Render functions
+ * Pupils functions
  */
-void drawEyes(byte* bitmap) {
-  for(byte x=0; x<8; x++) {
-    for(byte y=0; y<8; y++) {
-      lmd.setPixel(x, y, bitmap[x] & (1 << y));
-    }
+bool applyPupilMask(byte x, byte y, bool ledPixel) { 
+  if (!ledPixel) {
+    return ledPixel;
   }
 
+  byte xStartPosition = EYE_ORIGIN_POSITION + pupils.position[0];
+  byte xEndPosition = xStartPosition + pupils.size[0];
+  byte yStartPosition = EYE_ORIGIN_POSITION + pupils.position[1];
+  byte yEndPosition = yStartPosition + pupils.size[1];
+
+  if (x >= xStartPosition && x < xEndPosition && y >= yStartPosition && y < yEndPosition) {
+    return false;
+  }
+    
+  return ledPixel; 
+}
+
+void makePupilsDecision() {
+  int pupilsMoveDuration = random(EYES_BLINK_INTERVAL[0], EYES_BLINK_INTERVAL[1]);
+  eyesPupilsThread.setInterval(pupilsMoveDuration);
+  eyesThread.add(&eyesPupilsThread);
+}
+
+
+void onPupilsMove() {
+  eyesThread.remove(&eyesPupilsThread);
+  
+  pupils.position[0] = random(-2, 2);
+  pupils.position[1] = random(-2, 2);
+
+  makePupilsDecision();
+}
+
+/*
+ * Render functions
+ */
+void drawEyes(byte* bitmap) {  
+  for(byte x=0; x<8; x++) {
+    for(byte y=0; y<8; y++) {
+      // Get each led pixel and apply masks to it
+      bool ledPixel = bitmap[y] & (1 << x);
+      ledPixel = applyPupilMask(x, y, ledPixel);
+
+      // Rotate matrix CCW
+      byte ledX = y;
+      byte ledY = 7 - x;
+      lmd.setPixel(ledX, ledY, ledPixel);
+    }
+  }
+  
   lmd.display();
 }
 
@@ -110,8 +175,9 @@ void setupEyesThread() {
   eyesAnimationThread.setInterval(eyesOptions.fps);
   eyesThread.add(&eyesAnimationThread);
 
-  // Blink thread is a one off, added on demand
+  // Eye event threads are one offs, added on demand
   eyesBlinkThread.onRun(onEyesBlink);
+  eyesPupilsThread.onRun(onPupilsMove);
 }
 
 void runEyesThread() {
