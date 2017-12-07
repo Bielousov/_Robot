@@ -25,7 +25,6 @@ DECISION_STATE decisionState = {
  * Decisions
  * =========
  */
-
 struct DECISION {
     bool allowed;
     uint16_t timeSincePreviousDecision;
@@ -82,8 +81,12 @@ void makeDecisionEyesPupilsMove(uint8_t weight = 0) {
         return;
     }
 
-    // Decision weight is random in a range [0 ... 10, %]
-    eyesPupils.weight = weight > 0 ? weight : random(DECISION_MAX_WEIGHT/10);
+    // Decision weight is random but nore likely with time
+    if (weight > 0) {
+      eyesPupils.weight = weight;
+    } else if (eyesPupils.weight < DECISION_MAX_WEIGHT) {
+       eyesPupils.weight++;
+    }
 
     makeDecision(&eyesPupils, onPupilsMove);
 }
@@ -119,7 +122,7 @@ void makeDecision (struct DECISION *decision, void calback()) {
  * Asynchronous thread process
  * ===========================
  */
-void runDecisionThread() {
+void runDecisionsThread() {
   if(decisionThread.shouldRun()) {
       decisionThread.run();
   }

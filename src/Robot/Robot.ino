@@ -13,6 +13,6 @@ void setup() {
 
 void loop() {
   // Run asynchronous threads
-  runDecisionThread();
+  runDecisionsThread();
   runEyesThread();
 }

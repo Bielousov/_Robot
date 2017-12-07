@@ -33,12 +33,14 @@ struct EYES_STATE {
     bool isOpen;
     uint8_t pupilsSize[2];
     int8_t pupilsPosition[2];
+    byte* currentFrame;
 };
 
 EYES_STATE eyesState = {
     false,    // I start with my eyes closed
     {2, 2},   // Pupils size
-    {0, 1}    // Pupils position, center based
+    {0, 1},    // Pupils position, center based
+    (byte*)eyeBlinkAnimationBitmap[0]
 };
 
 /*
@@ -108,6 +110,11 @@ bool applyPupilMask(uint8_t x, uint8_t y, bool ledPixel) {
 void onPupilsMove() {
     eyesState.pupilsPosition[0] = random(-2, 2);
     eyesState.pupilsPosition[1] = random(-2, 2);
+
+    if (isAnimationQueueEmpty()) {
+      pushFrameToAnimationQueue(eyesState.currentFrame);
+    }
+    
 }
 
 /*
@@ -127,7 +134,8 @@ void drawEyes(byte* bitmap) {
             lmd.setPixel(ledX, ledY, ledPixel);
         }
     }
-    
+
+    eyesState.currentFrame = bitmap;
     lmd.display();
 }
 
