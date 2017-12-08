@@ -1,11 +1,7 @@
 #include <LEDMatrixDriver.hpp>
-#include <QList.h>
  
 // Eyes thread
 Thread eyesAnimationThread = Thread();
-
-// Eyes Animation Queue
-QList <byte*> eyesAnimationQueue;
 
 const uint8_t EYES_ANIMATION_FPS = 1000 / 24;    // Animation frequency, in FPS -> ms
 const uint8_t EYES_BRIGHTNESS = 0;             // LED Brightness
@@ -161,32 +157,5 @@ void onEyesAnimation() {
     
     byte* frameBitmap = popFrameFromAnimationQueue();
     drawEyes(frameBitmap);
-}
-
-
-/*
- * Animation Queue
- * ===============
- */
- void addAnimationSequence(const byte animationBitmap[][8], const uint8_t animationSequence[], const uint8_t animationSequenceSize) {
-    for (int i = 0; i < animationSequenceSize; i++) {
-        byte frameIndex = animationSequence[i];
-        byte* frameBitmap = (byte*) animationBitmap[frameIndex];
-        pushFrameToAnimationQueue(frameBitmap);
-    }
-}
-
-void pushFrameToAnimationQueue(byte frameBitmap[8]) {
-    eyesAnimationQueue.push_back(frameBitmap);
-}
-
-byte* popFrameFromAnimationQueue() {
-    byte* frameBitmap = eyesAnimationQueue.front();
-    eyesAnimationQueue.pop_front();
-    return frameBitmap;
-}
-
-bool isAnimationQueueEmpty() {
-    return eyesAnimationQueue.size() == 0;
 }
 
