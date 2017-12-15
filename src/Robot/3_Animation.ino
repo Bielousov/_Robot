@@ -5,8 +5,17 @@
 
 #include <QList.h>
 
+const uint8_t ANIMATION_BUFFER_SIZE = 32;
+
 // Eyes Animation Queue
 QList <byte*> animationQueue;
+//byte animationBuffer[ANIMATION_BUFFER_SIZE][8];
+//
+//void initAnimationQueue() {
+//    for (uint8_t i = 0; i < ANIMATION_BUFFER_SIZE; i++) {
+//      animationBuffer[i] = NULL;
+//    }
+//}
 
 void addAnimationSequence(
     const byte animationBitmap[][8], 
@@ -33,3 +42,13 @@ byte* popFrameFromAnimationQueue() {
 bool isAnimationQueueEmpty() {
     return animationQueue.size() == 0;
 }
+
+//byte findEmptyAnimationBuffer() {
+//    for (uint8_t i = 0; i < ANIMATION_BUFFER_SIZE - 1; i++) {
+//        if(animationBuffer[i] == NULL) {
+//            return i;
+//        }
+//    } 
+//
+//    return ANIMATION_BUFFER_SIZE - 1;
+//}

@@ -43,19 +43,25 @@ void initEyes() {
 
 
 void closeEyes() {
+    // Update state
+    State.Eyes.isOpened = false;
+  
     // Stop blinking when my eye are closed
-    resetEyesBlinkDecision(false);
+    resetEyesBlinkDecision();
   
     // Add animation sequence to queue
     addAnimationSequence(eyeBlinkAnimationBitmap, EYES_CLOSE_ANIMATION_SEQUENCE, sizeof(EYES_CLOSE_ANIMATION_SEQUENCE));
 }
 
 void openEyes() {
+    // Update state
+    State.Eyes.isOpened = true;
+
     // Add animation sequence to queue
     addAnimationSequence(eyeBlinkAnimationBitmap, EYES_OPEN_ANIMATION_SEQUENCE, sizeof(EYES_OPEN_ANIMATION_SEQUENCE));
   
     // When my eyes are open I want to blink
-    resetEyesBlinkDecision(true);
+    resetEyesBlinkDecision();
 }
 
 /*
