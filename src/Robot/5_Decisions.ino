@@ -10,18 +10,6 @@ const uint8_t DECISION_FREQUENCY = 200;   // Decisions frequency, in ms
 const uint8_t DECISION_MAX_WEIGHT = 255;  // Decisions max weight
 
 /*
- * Decisions model state
- * =====================
- */
-struct DECISION_STATE {
-    uint16_t timeSincePreviousDecision;
-};
-
-DECISION_STATE decisionState = {
-    0, // Time since after previous decision made  
-};
-
-/*
  * Decisions
  * =========
  */
@@ -112,7 +100,7 @@ void makeDecision (struct DECISION *decision, void calback()) {
     }
   
     // Positive decision
-    decisionState.timeSincePreviousDecision = 0;
+    State.Decision.timeSincePreviousDecision = 0;
     decision->timeSincePreviousDecision = 0;
     decision->weight = 0;
     calback();
@@ -134,7 +122,7 @@ void runDecisionsThread() {
  */
 void onDecision() {
   // Update decision state
-  decisionState.timeSincePreviousDecision += DECISION_FREQUENCY;
+  State.Decision.timeSincePreviousDecision += DECISION_FREQUENCY;
   
   makeDecisionEyesBlink();
   makeDecisionEyesPupilsMove();

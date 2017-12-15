@@ -23,27 +23,11 @@ const uint8_t EYES_CLOSE_ANIMATION_SEQUENCE[5] = {4, 3, 2, 1, 0};
 LEDMatrixDriver lmd(1, PIN_EYES_LED_CS);
 
 /*
- * Eyes state
- */
-struct EYES_STATE {
-    bool isOpen;
-    uint8_t pupilsSize[2];
-    int8_t pupilsPosition[2];
-    byte* currentFrame;
-};
-
-EYES_STATE eyesState = {
-    false,    // I start with my eyes closed
-    {2, 2},   // Pupils size
-    {0, 1},    // Pupils position, center based
-    (byte*)eyeBlinkAnimationBitmap[0]
-};
-
-/*
  * Setup
  * =====
  */
 void initEyes() {
+  
     lmd.setEnabled(true);
     lmd.setIntensity(EYES_BRIGHTNESS);
     lmd.clear();
@@ -53,6 +37,7 @@ void initEyes() {
     eyesAnimationThread.setInterval(EYES_ANIMATION_FPS);
   
     /* Start by opening my eyes */
+    State.Eyes.currentFrame = (byte*)eyeBlinkAnimationBitmap[0];
     openEyes();
 }
 
@@ -91,10 +76,10 @@ bool applyPupilMask(uint8_t x, uint8_t y, bool ledPixel) {
         return ledPixel;
     }
   
-    uint8_t xStartPosition = EYES_ORIGIN_POSITION + eyesState.pupilsPosition[0];
-    uint8_t xEndPosition = xStartPosition + eyesState.pupilsSize[0];
-    uint8_t yStartPosition = EYES_ORIGIN_POSITION + eyesState.pupilsPosition[1];
-    uint8_t yEndPosition = yStartPosition + eyesState.pupilsSize[1];
+    uint8_t xStartPosition = EYES_ORIGIN_POSITION + State.Eyes.pupilsPosition[0];
+    uint8_t xEndPosition = xStartPosition + State.Eyes.pupilsSize[0];
+    uint8_t yStartPosition = EYES_ORIGIN_POSITION + State.Eyes.pupilsPosition[1];
+    uint8_t yEndPosition = yStartPosition + State.Eyes.pupilsSize[1];
   
     if (x >= xStartPosition && x < xEndPosition && y >= yStartPosition && y < yEndPosition) {
         return false;
@@ -104,11 +89,11 @@ bool applyPupilMask(uint8_t x, uint8_t y, bool ledPixel) {
 }
 
 void onPupilsMove() {
-    eyesState.pupilsPosition[0] = random(-2, 2);
-    eyesState.pupilsPosition[1] = random(-2, 2);
+    State.Eyes.pupilsPosition[0] = random(-2, 2);
+    State.Eyes.pupilsPosition[1] = random(-2, 2);
 
     if (isAnimationQueueEmpty()) {
-      pushFrameToAnimationQueue(eyesState.currentFrame);
+      pushFrameToAnimationQueue(State.Eyes.currentFrame);
     }
     
 }
@@ -131,7 +116,7 @@ void drawEyes(byte* bitmap) {
         }
     }
 
-    eyesState.currentFrame = bitmap;
+    State.Eyes.currentFrame = bitmap;
     lmd.display();
 }
 
@@ -144,7 +129,6 @@ void runEyesThread() {
         eyesAnimationThread.run();
     }
 }
-
 
 /*
  * Thread callback
