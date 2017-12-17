@@ -30,7 +30,7 @@ struct ENVIRONMENT_STATE {
 struct EYES_STATE {
     byte*   currentFrame;
     bool    isOpened          = false;
-    uint8_t pupilsPosition[2] = {0, 0};
+    int8_t pupilsPosition[2] = {0, 0};
     uint8_t pupilsSize[2]     = {2, 2};
 };
 

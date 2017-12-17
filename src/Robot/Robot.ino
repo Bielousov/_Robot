@@ -7,7 +7,7 @@
 #define PIN_EYES_LED_CLK    13
 
 void setup() {
-  //  Serial.begin(9600);
+  // Serial.begin(9600);
 
   initDecisions();
   initEnvironmet();
