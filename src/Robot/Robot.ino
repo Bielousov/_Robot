@@ -6,8 +6,11 @@
 #define PIN_EYES_LED_DIN    11
 #define PIN_EYES_LED_CLK    13
 
+// LED Matrix size
+const uint8_t BITMAP_SIZE = 8;
+
 void setup() {
-  // Serial.begin(9600);
+//   Serial.begin(9600);
 
   initDecisions();
   initEnvironmet();

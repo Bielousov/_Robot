@@ -6,7 +6,7 @@
 // Decisions thread
 Thread decisionThread = Thread();
 
-const uint8_t DECISION_FREQUENCY        = 250;   // Decisions frequency, in ms
+const uint8_t DECISION_INTERVAL        = 250;   // Decisions frequency, in ms
 const uint8_range DECISION_WEIGHT_RANGE = {0, 255}; // Decisions min / max weight
 
 /*
@@ -53,7 +53,7 @@ void makeDecisionToSleep() {
 void initDecisions() {
   // Decision thread runs at 5 Hz
   decisionThread.onRun(onDecision);
-  decisionThread.setInterval(DECISION_FREQUENCY);
+  decisionThread.setInterval(DECISION_INTERVAL);
 }
 
 void incrementWeight(struct DECISION *decision) {
@@ -71,7 +71,7 @@ void makeDecision (struct DECISION *decision, void callback()) {
 
   // Negative decision
   if (!decisionChance) {
-    decision -> timeSincePreviousDecision += DECISION_FREQUENCY;
+    decision -> timeSincePreviousDecision += DECISION_INTERVAL;
     return;
   }
 

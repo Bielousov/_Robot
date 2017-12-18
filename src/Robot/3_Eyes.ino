@@ -9,7 +9,7 @@ AnimationBuffer animationBuffer;
 const uint8_t EYES_ANIMATION_FPS = 24;                                // Animation frequency, in FPS
 const uint8_t EYES_ANIMATION_INTERVAL = 1000 / EYES_ANIMATION_FPS;   // Animation frequency, in ms
 const uint8_t EYES_BRIGHTNESS = 0;                                    // LED Brightness
-const uint8_t EYES_ORIGIN_POSITION = 8 / 2 - 1;                       // Define LED matrix center in 0-based coordinates (3)
+const uint8_t EYES_ORIGIN_POSITION = BITMAP_SIZE / 2 - 1;                       // Define LED matrix center in 0-based coordinates (3)
 
 // Animation frame sequences
 const uint8_t EYES_OPEN_ANIMATION_SEQUENCE[5] = {0, 1, 2, 3, 4};
@@ -42,7 +42,7 @@ void initEyes() {
     eyesAnimationThread.setInterval(EYES_ANIMATION_INTERVAL);
   
     /* Start by opening my eyes */
-    State.Eyes.currentFrame = (byte*)eyeBlinkAnimationBitmap[0];
+    // State.Eyes.currentFrame = (byte*)eyeBlinkAnimationBitmap[0];
     openEyes();
 }
 
@@ -120,13 +120,12 @@ void onPupilsMove() {
  * =============
  */
 void generateFramesSequence(
-    const byte animationBitmap[][8], 
+    const byte animationBitmap[][BITMAP_SIZE], 
     const uint8_t* animationSequence, 
     const uint8_t animationSequenceSize
 ) {
     for (int i = 0; i < animationSequenceSize; i++) {
-        byte frameIndex = animationSequence[i];
-        byte* frameBitmap = (byte*) animationBitmap[frameIndex];
+        byte* frameBitmap = loadBitmapFromProgmem(animationBitmap, animationSequence[i]);
         generateFrame(frameBitmap, 1);
     }
 }
@@ -134,10 +133,10 @@ void generateFramesSequence(
 void generateFrame(byte* frameBitmap, uint8_t frames) {
     byte* frameBuffer = animationBuffer.getFrameBuffer();
 
-    memcpy(frameBuffer, frameBitmap, 8);
+    memcpy(frameBuffer, frameBitmap, BITMAP_SIZE);
     
-    for(uint8_t x = 0; x < 8; x++) {
-        for(uint8_t y = 0; y < 8; y++) {
+    for(uint8_t x = 0; x < BITMAP_SIZE; x++) {
+        for(uint8_t y = 0; y < BITMAP_SIZE; y++) {
             // Get each led pixel and apply masks to it
             bool ledPixel = frameBuffer[y] & (1 << x);
             ledPixel = applyPupilMask(x, y, ledPixel);
@@ -155,14 +154,14 @@ void generateFrame(byte* frameBitmap, uint8_t frames) {
 }
 
 void drawEyes(byte* bitmap) {  
-    for(uint8_t x=0; x<8; x++) {
-        for(uint8_t y=0; y<8; y++) {
+    for(uint8_t x = 0; x < BITMAP_SIZE; x++) {
+        for(uint8_t y = 0; y < BITMAP_SIZE; y++) {
             // Get each led pixel and apply masks to it
             bool ledPixel = bitmap[y] & (1 << x);
       
             // Rotate matrix CCW
             uint8_t ledX = y;
-            uint8_t ledY = 7 - x;
+            uint8_t ledY = BITMAP_SIZE - x - 1;
             lmd.setPixel(ledX, ledY, ledPixel);
         }
     }
