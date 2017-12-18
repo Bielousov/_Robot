@@ -1,10 +1,13 @@
+#include <AnimationBuffer.h>
 #include <LEDMatrixDriver.hpp>
  
 // Eyes thread
 Thread eyesAnimationThread = Thread();
 
+AnimationBuffer animationBuffer;
+
 const uint8_t EYES_ANIMATION_FPS = 24;                                // Animation frequency, in FPS
-const uint8_t EYES_ANIMATION_FREQUENCY = 1000 / EYES_ANIMATION_FPS;   // Animation frequency, in ms
+const uint8_t EYES_ANIMATION_INTERVAL = 1000 / EYES_ANIMATION_FPS;   // Animation frequency, in ms
 const uint8_t EYES_BRIGHTNESS = 0;                                    // LED Brightness
 const uint8_t EYES_ORIGIN_POSITION = 8 / 2 - 1;                       // Define LED matrix center in 0-based coordinates (3)
 
@@ -36,7 +39,7 @@ void initEyes() {
     
     /* Animation thread runs at 24 FPS */
     eyesAnimationThread.onRun(onEyesAnimation);
-    eyesAnimationThread.setInterval(EYES_ANIMATION_FREQUENCY);
+    eyesAnimationThread.setInterval(EYES_ANIMATION_INTERVAL);
   
     /* Start by opening my eyes */
     State.Eyes.currentFrame = (byte*)eyeBlinkAnimationBitmap[0];
@@ -108,7 +111,7 @@ void onPupilsMove() {
          }
       }
 
-      generateFrame(State.Eyes.currentFrame, 2);
+      generateFrame(State.Eyes.currentFrame, (uint8_t)random(1,5));
     }
 }
 
@@ -129,7 +132,7 @@ void generateFramesSequence(
 }
 
 void generateFrame(byte* frameBitmap, uint8_t frames) {
-    byte* frameBuffer = findEmptyAnimationBuffer();
+    byte* frameBuffer = animationBuffer.getFrameBuffer();
 
     memcpy(frameBuffer, frameBitmap, 8);
     
@@ -145,7 +148,7 @@ void generateFrame(byte* frameBitmap, uint8_t frames) {
 
     // Slow down animation
     for (uint8_t t = 0; t < frames; t++) {
-      animationQueue.push_back(frameBuffer);
+      animationBuffer.addFrame(frameBuffer);
     }
 
     State.Eyes.currentFrame = frameBitmap;
@@ -183,11 +186,11 @@ void runEyesThread() {
  * ---------------
  */
 void onEyesAnimation() {
-    if (isAnimationQueueEmpty()) {
+    if (animationBuffer.isQueueEmpty()) {
         return;
     }
     
-    byte* frameBitmap = popFrameFromAnimationQueue();
+    byte* frameBitmap = animationBuffer.getFrame();
     drawEyes(frameBitmap);
 }
 
