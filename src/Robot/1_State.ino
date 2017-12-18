@@ -3,22 +3,6 @@
  * =====================
  */
 
-/*
- * Decisions
- * =========
- */
-struct DECISION {
-    uint16_t  timeSincePreviousDecision = 0;
-    uint8_t   weight = 0;
-};
-
-struct DECISION_STATE {
-  DECISION eyesBlink;
-  DECISION eyesPupils;
-  DECISION sleepMode;
-};
-
-
 // Environment state
 struct ENVIRONMENT_STATE {
   bool isHumanDetected          = true;
@@ -36,7 +20,6 @@ struct EYES_STATE {
 
 // Global state store
 struct STATE {
-  DECISION_STATE Decision;
   ENVIRONMENT_STATE Environment;
   EYES_STATE Eyes;
 };
