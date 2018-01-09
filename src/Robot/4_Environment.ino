@@ -1,7 +1,7 @@
 // Environment sensors thread
 Thread environmentThread = Thread();
 
-const uint16_t ENVIRONMENT_SCAN_FREQUENCY = 500;          // Environment sensors read frequency, in ms
+const uint16_t ENVIRONMENT_SCAN_FREQUENCY = 100;          // Environment sensors read frequency, in ms
 
 void initEnvironmet() {
     pinMode(PIN_PIR_SENSOR, INPUT);
@@ -31,7 +31,9 @@ uint16_t getTimeSinceHumanLost() {
  */
 void onHumanDetected() {
   if (!State.Environment.isHumanDetected) {
-    // TODO: State change event
+      // TODO: detect general direction and send it as parameter
+      setPointOfInterest(-2, 1);
+      updateDecisionsOnHumanDetection();
   }
   
   State.Environment.isHumanDetected = true;
@@ -41,8 +43,18 @@ void onHumanDetected() {
 void onHumanLost() {
   State.Environment.isHumanDetected = false;
   State.Environment.timeHumanLost = getTime();
+  setPointOfInterest(0, 0);
 }
 
+
+// Sets a point of interest that would attract eyes movemet
+void setPointOfInterest (int8_t h, int8_t v) {
+  State.Environment.pointOfInterest[0] = h;
+  State.Environment.pointOfInterest[1] = v;
+}
+void setRandomPointOfInterest () {
+  setPointOfInterest(getRandomPointOfInterest(), getRandomPointOfInterest());
+}
 
 /*
  * Asynchronous thread process

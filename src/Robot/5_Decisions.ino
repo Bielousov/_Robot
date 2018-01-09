@@ -1,6 +1,6 @@
 #include <Decision.h>
 
-const uint8_t DECISION_INTERVAL        = 200;   // Decisions frequency, in ms
+const uint8_t DECISION_INTERVAL = 200;   // Decisions frequency, in ms
 
 struct DECISION_STATE {
   Decision eyesBlink;
@@ -18,23 +18,29 @@ Thread decisionThread = Thread();
    ---------------------
 */
 void makeEyesBlinkDecision() {
-  if (!State.Eyes.isOpened) {
+  if (State.Eyes.isOpened) {
     DecisionState.eyesBlink.incrementWeight();
-    DecisionState.eyesBlink.makeDecision(onEyesBlink);
+    DecisionState.eyesBlink.makeDecision(onEyesBlink, true);
   }
 };
 
-void resetEyesBlinkDecision() {
-  DecisionState.eyesBlink.resetDecision();
-}
-
 /*
-   Eyes: Pupils Move Decisions
+   Eyes: Move Decisions
    ---------------------------
 */
 void makeEyesMoveDecision() {
   DecisionState.eyesMove.incrementWeight();
-  DecisionState.eyesMove.makeDecision(onPupilsMove);
+  DecisionState.eyesMove.makeDecision(onEyesMove, true);
+}
+
+/* 
+ * I tend to focus more on the point of interest I set in my Environment,
+ * however if the decision to move my eyes hasn't been really strong,
+ * I may experience some eyes wondering syndrome.
+    
+ */
+void makeEyesWonderDecision() {
+  DecisionState.eyesMove.makeOppositeDecision(setRandomPointOfInterest, false);
 }
 
 
@@ -47,8 +53,20 @@ const uint8_range sleepModeRange = {30, 255}; // Min / Max time to fall asleep i
 void makeSleepDecision() {
   if (isHumanDetected()) {
     DecisionState.sleepMode.setWeightInRange(getTimeSinceHumanDetected(), sleepModeRange.min, sleepModeRange.max);
-    DecisionState.sleepMode.makeDecision(onHumanLost);
+    DecisionState.sleepMode.makeDecision(onHumanLost, true);
   }
+}
+
+/*
+ * Decision affecting events
+ */
+ 
+void updateDecisionsOnEyesClosed() {
+    DecisionState.eyesBlink.resetDecision();
+}
+
+void updateDecisionsOnHumanDetection() {
+    DecisionState.eyesMove.addWeight(DecisionWeight.hight);
 }
 
 
@@ -74,6 +92,7 @@ void runDecisionsThread() {
 */
 void onDecision() {
   makeEyesBlinkDecision();
+  makeEyesWonderDecision();
   makeEyesMoveDecision();
   makeSleepDecision();
 }

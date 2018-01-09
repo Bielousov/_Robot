@@ -52,7 +52,7 @@ void closeEyes() {
     State.Eyes.isOpened = false;
   
     // Stop blinking when my eye are closed
-    resetEyesBlinkDecision();
+    updateDecisionsOnEyesClosed();
   
     // Add animation sequence to queue
     generateFramesSequence(eyeBlinkAnimationBitmap, EYES_CLOSE_ANIMATION_SEQUENCE, sizeof(EYES_CLOSE_ANIMATION_SEQUENCE));
@@ -64,9 +64,6 @@ void openEyes() {
 
     // Add animation sequence to queue
     generateFramesSequence(eyeBlinkAnimationBitmap, EYES_OPEN_ANIMATION_SEQUENCE, sizeof(EYES_OPEN_ANIMATION_SEQUENCE));
-  
-    // When my eyes are open I want to blink
-    resetEyesBlinkDecision();
 }
 
 /*
@@ -74,6 +71,8 @@ void openEyes() {
  * ========
  */
 void onEyesBlink() {
+    uint8_t blinkDelay = random(5);
+    
     closeEyes();
     openEyes();
 }
@@ -81,6 +80,29 @@ void onEyesBlink() {
 /*
  * Pupils
  * ======
+ */
+void onEyesMove() {
+    uint8_t eyesMovementSpeed = random(2,4);
+    int8_t* newPupilsPosition = State.Environment.pointOfInterest;
+    
+    while (State.Eyes.pupilsPosition[0] != newPupilsPosition[0] || State.Eyes.pupilsPosition[1] != newPupilsPosition[1]) {
+      // Move pupil only 1px in X and Y axis at once until the final position is reached
+      for (uint8_t i = 0; i < 2; i++) {
+         if(State.Eyes.pupilsPosition[i] < newPupilsPosition[i]) {
+            State.Eyes.pupilsPosition[i]++;
+         } else if(State.Eyes.pupilsPosition[i] > newPupilsPosition[i]) {
+            State.Eyes.pupilsPosition[i]--;
+         }
+      }
+  
+      generateFrame(State.Eyes.currentFrame, eyesMovementSpeed);
+    }
+}
+
+
+/*
+ * LED Rendering
+ * =============
  */
 bool applyPupilMask(uint8_t x, uint8_t y, bool ledPixel) { 
     if (!ledPixel) {
@@ -99,26 +121,6 @@ bool applyPupilMask(uint8_t x, uint8_t y, bool ledPixel) {
     return ledPixel; 
 }
 
-void onPupilsMove() {
-    int8_t newPupilsPosition[2] = {(int8_t)random(-2, 2), (int8_t)random(-2, 2)};
-
-    while (State.Eyes.pupilsPosition[0] != newPupilsPosition[0] || State.Eyes.pupilsPosition[1] != newPupilsPosition[1]) {
-      for (uint8_t i = 0; i < 2; i++) {
-         if(State.Eyes.pupilsPosition[i] < newPupilsPosition[i]) {
-            State.Eyes.pupilsPosition[i]++;
-         } else if(State.Eyes.pupilsPosition[i] > newPupilsPosition[i]) {
-            State.Eyes.pupilsPosition[i]--;
-         }
-      }
-
-      generateFrame(State.Eyes.currentFrame, (uint8_t)random(1,5));
-    }
-}
-
-/*
- * LED Rendering
- * =============
- */
 void generateFramesSequence(
     const byte animationBitmap[][BITMAP_SIZE], 
     const uint8_t* animationSequence, 
@@ -130,7 +132,7 @@ void generateFramesSequence(
     }
 }
 
-void generateFrame(byte* frameBitmap, uint8_t frames) {
+void generateFrame(byte* frameBitmap, uint8_t animationDelay) {
     byte* frameBuffer = animationBuffer.getFrameBuffer();
 
     memcpy(frameBuffer, frameBitmap, BITMAP_SIZE);
@@ -146,11 +148,16 @@ void generateFrame(byte* frameBitmap, uint8_t frames) {
     }
 
     // Slow down animation
-    for (uint8_t t = 0; t < frames; t++) {
-      animationBuffer.addFrame(frameBuffer);
-    }
-
+    repeatFrame(frameBuffer, animationDelay);
+    
     State.Eyes.currentFrame = frameBitmap;
+}
+
+// Slow down animation
+void repeatFrame(byte* frameBitmap, uint8_t frameDelay) {
+    for (uint8_t t = 0; t < frameDelay; t++) {
+        animationBuffer.addFrame(frameBitmap);
+    }
 }
 
 void drawEyes(byte* bitmap) {  

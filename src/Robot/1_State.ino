@@ -6,6 +6,7 @@
 // Environment state
 struct ENVIRONMENT_STATE {
   bool isHumanDetected          = true;
+  int8_t pointOfInterest[2]     = {0, 0}; // corresponds to State.Eyes.pupilsPosition
   uint16_t timeHumanDetected    = 0;
   uint16_t timeHumanLost        = 0;
 };
@@ -14,7 +15,7 @@ struct ENVIRONMENT_STATE {
 struct EYES_STATE {
     byte*   currentFrame;
     bool    isOpened          = false;
-    int8_t pupilsPosition[2] = {0, 0};
+    int8_t pupilsPosition[2]  = {0, 0};
     uint8_t pupilsSize[2]     = {2, 2};
 };
 
@@ -30,10 +31,14 @@ struct STATE {
  */
 STATE State = {};
 
+
 /*
  * Public Methods
  */
-
- uint16_t getTime() {
+uint16_t getTime() {
   return millis() / 1000;
- }
+}
+
+int8_t getRandomPointOfInterest () {
+   return random(-2, 2);
+}
