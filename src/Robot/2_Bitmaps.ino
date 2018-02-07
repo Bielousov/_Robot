@@ -1,6 +1,7 @@
+#include <avr/pgmspace.h>
 
 // Eye animation frames
-const byte eyeBlinkAnimationBitmap[5][8] = {
+PROGMEM const byte eyeBlinkAnimationBitmap[5][BITMAP_SIZE] = {
   { B00000000,
     B00000000,
     B00000000,
@@ -42,3 +43,17 @@ const byte eyeBlinkAnimationBitmap[5][8] = {
     B01111110,
     B00111100 }
 };
+
+/*
+ * Helper method to load bitmap from PROGMEM
+ * -----------------------------------------
+ */
+byte* loadBitmapFromProgmem(const byte bitmap[][BITMAP_SIZE], uint8_t frameIndex) {
+  static byte progmemBitmapBuffer[BITMAP_SIZE];
+
+  for (uint8_t row = 0; row < BITMAP_SIZE; row++) {
+    progmemBitmapBuffer[row] = pgm_read_byte_near(&bitmap[frameIndex][row]);
+  }
+
+  return progmemBitmapBuffer;
+}
