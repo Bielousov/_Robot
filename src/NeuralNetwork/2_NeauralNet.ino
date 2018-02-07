@@ -15,7 +15,7 @@ void initializeNeuralNetwork() {
   Serial.println("===== Test =====");
 
   for (uint8_t i = 0; i < sizeof(TestData); i++) {
-    neuralNet.getActivation(TestData[i]);
+    neuralNet.getActivation((uint8_t*) TestData[i]);
     Serial.println("-----");
   }
 }

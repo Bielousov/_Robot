@@ -15,6 +15,7 @@ class NeuralNet {
     );
 
     // Config
+    float Alpha = 0.1;
     float InitialWeightMax = 0.5;
     float LearningRate = 0.3;
     float Momentum = 0.9;
@@ -80,6 +81,7 @@ class NeuralNet {
     void inputData(uint8_t* data);
     void getHiddenLayerActivation();
     void getOutputLayerActivation();
+    float activationFunction(float inputValue);
 
     void printInputData();
     void printOutputActivation();

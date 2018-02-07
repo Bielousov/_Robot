@@ -83,7 +83,7 @@ float*  NeuralNet::getActivation(uint8_t *data) {
         printOutputActivation();
     }
     
-    return OutputNodes;
+    return Output;
 }
 
 
@@ -96,33 +96,31 @@ void NeuralNet::initializeLayers() {
     Input = new uint8_t[InputNodes];
     Hidden = new float[HiddenNodes];
     Output = new float[OutputNodes];
+
     HiddenWeights = new float*[InputNodes+1];
-    ChangeHiddenWeights = new float*[InputNodes+1];
     OutputWeights = new float*[HiddenNodes+1];
+    ChangeHiddenWeights = new float*[InputNodes+1];
     ChangeOutputWeights = new float*[HiddenNodes+1];
-    
-    for (i=0; i < InputNodes + 1; i++) {
+
+    // Initialize Hidden Layer
+    for( i = 0; i <= InputNodes; i++ ) { 
         HiddenWeights[i] = new float[HiddenNodes];
         ChangeHiddenWeights[i] = new float[HiddenNodes];
-    }
-    for (i=0; i < HiddenNodes + 1; i++) {
-        OutputWeights[i] = new float[OutputNodes];
-        ChangeOutputWeights[i] = new float[HiddenNodes];
-    }
-    
-    // Initialize Hidden Layer
-    for( i = 0; i < HiddenNodes; i++ ) {    
-        for( j = 0; j <= InputNodes; j++ ) { 
-            ChangeHiddenWeights[j][i] = 0.0;   
-            HiddenWeights[j][i] = 2.0 * ( randomWeight() - 0.5 ) * InitialWeightMax;
+
+        for( j = 0; j < HiddenNodes; j++ ) {    
+            ChangeHiddenWeights[i][j] = 0.0;   
+            HiddenWeights[i][j] = 2.0 * ( randomWeight() - 0.5 ) * InitialWeightMax;
         }
     }
 
     // Initialize Ouput Layers
-    for( i = 0; i < OutputNodes; i ++ ) {    
-        for( j = 0; j <= HiddenNodes; j++ ) {
-            ChangeOutputWeights[j][i] = 0.0;     
-            OutputWeights[j][i] = 2.0 * ( randomWeight() - 0.5 ) * InitialWeightMax;
+    for( i = 0; i <= HiddenNodes; i++ ) {
+        OutputWeights[i] = new float[OutputNodes];
+        ChangeOutputWeights[i] = new float[HiddenNodes];
+
+        for( j = 0; j < OutputNodes; j ++ ) {    
+            ChangeOutputWeights[i][j] = 0.0;     
+            OutputWeights[i][j] = 2.0 * ( randomWeight() - 0.5 ) * InitialWeightMax;
         }
     }
 }
@@ -194,8 +192,13 @@ void  NeuralNet::getHiddenLayerActivation() {
       for( j = 0 ; j < InputNodes ; j++ ) {
         Accum += Input[j] * HiddenWeights[j][i] ;
       }
-      Hidden[i] = 1.0/(1.0 + exp(-Accum)) ;
+      Hidden[i] = activationFunction(Accum);
     }
+}
+
+float NeuralNet::activationFunction(float inputValue) {
+    // return 1.0/(1.0 + exp(-input * Alpha)) ;
+    return 0.5 * inputValue * Alpha / (1 + abs(inputValue * Alpha)) + 0.5;
 }
 
 /******************************************************************
@@ -207,7 +210,7 @@ void  NeuralNet::getOutputLayerActivation() {
         for( j = 0 ; j < HiddenNodes ; j++ ) {
             Accum += Hidden[j] * OutputWeights[j][i] ;
         }
-        Output[i] = 1.0/(1.0 + exp(-Accum)) ; 
+        Output[i] = activationFunction(Accum);
 
         if (IsTraining) {
             OutputDelta[i] = (TargetData[p][i] - Output[i]) * Output[i] * (1.0 - Output[i]);
