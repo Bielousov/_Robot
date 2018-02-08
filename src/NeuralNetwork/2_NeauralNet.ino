@@ -1,14 +1,16 @@
 void initializeNeuralNetwork() {  
   NeuralNet neuralNet = NeuralNet(InputNodes, HiddenNodes, OutputNodes, &Serial);
 
-  neuralNet.InitialWeightMax = 0.2;
-  neuralNet.LearningRate = 0.1;
-  neuralNet.Momentum = 0.5;
-  neuralNet.ReportFrequencey = 100;
-  neuralNet.MaxTrainCycles = 2000;
+  neuralNet.Alpha = 0.02;
+  neuralNet.InitialWeightMax = 0.5;
+  neuralNet.LearningRate = 0.3;
+  neuralNet.Momentum = 0.9;
+  neuralNet.Success = 0.001;
+  neuralNet.ReportFrequencey = 1000;
+  neuralNet.MaxTrainCycles = 65000;
   
   // Train network
-  neuralNet.train((uint8_t*)TrainData, (float*) TargetData, PatternCount, Success);
+  neuralNet.train((uint8_t*)TrainData, (float*) TargetData, PatternCount);
 
   Serial.println();
   Serial.println();

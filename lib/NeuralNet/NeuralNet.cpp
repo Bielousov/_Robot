@@ -23,11 +23,9 @@ NeuralNet::NeuralNet(
 void NeuralNet::train(
     const uint8_t *trainData,
     const float *targetData,
-    const uint8_t patternCount,
-    const float success
+    const uint8_t patternCount
 ) {
     Error = 0.0;
-    Success = success;
     PatternCount = patternCount;
     TrainData = new uint8_t * [PatternCount];
     TargetData = new float * [PatternCount];
@@ -190,15 +188,15 @@ void  NeuralNet::getHiddenLayerActivation() {
     for( i = 0 ; i < HiddenNodes ; i++ ) {    
       Accum = HiddenWeights[InputNodes][i] ;
       for( j = 0 ; j < InputNodes ; j++ ) {
-        Accum += Input[j] * HiddenWeights[j][i] ;
+        Accum += Input[j] * Alpha * HiddenWeights[j][i] ;
       }
       Hidden[i] = activationFunction(Accum);
     }
 }
 
 float NeuralNet::activationFunction(float inputValue) {
-    // return 1.0/(1.0 + exp(-input * Alpha)) ;
-    return 0.5 * inputValue * Alpha / (1 + abs(inputValue * Alpha)) + 0.5;
+    //return 1.0/(1.0 + exp(-inputValue/255)) ;
+    return 0.5 * inputValue / (1 + abs(inputValue)) + 0.5;
 }
 
 /******************************************************************
@@ -255,27 +253,20 @@ void  NeuralNet::backPropagation() {
 }
 
 void NeuralNet::printInputData() {
-    Serial->print ("Input: ");
+    Serial->println ();
+    Serial->print ("  Input: ");
     for( i = 0 ; i < InputNodes ; i++ ) {       
       Serial->print (Input[i]);
       Serial->print (" ");
     }
 };
 void NeuralNet::printOutputActivation() {
-    Serial->println (" ");
-    Serial->print ("    Hidden Nodes: ");
-
-    for( i = 0 ; i < HiddenNodes ; i++ ) {       
-      Serial->print (Hidden[i], 4);
-      Serial->print (" ");
-    }
-    Serial->println (" ");
-
     Serial->print ("    Output: ");
     for( i = 0 ; i < OutputNodes ; i++ ) {       
       Serial->print (Output[i], 4);
       Serial->print (" ");
     }
+    Serial->println ();
 };
 
 float NeuralNet::randomWeight() {

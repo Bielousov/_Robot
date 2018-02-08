@@ -3,7 +3,7 @@
 
 // Neural Network Settings
 const uint8_t InputNodes = 6;
-const uint8_t HiddenNodes = 4;
+const uint8_t HiddenNodes = 12;
 const uint8_t OutputNodes = 2;
 
 void setup(){

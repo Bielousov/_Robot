@@ -1,7 +1,7 @@
-const float Success = 0.001;
-const uint8_t PatternCount = 10;
-
+const uint8_t PatternCount = 12;
 PROGMEM const uint8_t TrainData[PatternCount][InputNodes] = {
+  {255, 0, 0, 0, 0, 0 },
+  {255, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0 },
   {64, 0, 0, 0, 0, 0 },
   {128, 0, 0, 0, 0, 0 },
@@ -15,6 +15,8 @@ PROGMEM const uint8_t TrainData[PatternCount][InputNodes] = {
 }; 
 
 PROGMEM const float TargetData[PatternCount][OutputNodes] = {
+  { 0.4, 0},
+  { 0.4, 0},
   { 0, 0},
   { 0.1, 0},
   { 0.2, 0},

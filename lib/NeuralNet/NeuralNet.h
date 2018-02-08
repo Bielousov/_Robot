@@ -15,7 +15,7 @@ class NeuralNet {
     );
 
     // Config
-    float Alpha = 0.1;
+    float Alpha = 1;
     float InitialWeightMax = 0.5;
     float LearningRate = 0.3;
     float Momentum = 0.9;
@@ -26,8 +26,7 @@ class NeuralNet {
     void train(
       const uint8_t *trainData,
       const float   *targetData,
-      const uint8_t patternCount,
-      const float success
+      const uint8_t patternCount
     );
 
     float* getActivation(uint8_t *data);
