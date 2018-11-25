@@ -3,25 +3,17 @@
  * =====================
  */
 
-// Environment state
-struct ENVIRONMENT_STATE {
-  bool isHumanDetected          = true;
-  int8_t pointOfInterest[2]     = {0, 0}; // corresponds to State.Eyes.pupilsPosition
-  uint16_t timeHumanDetected    = 0;
-  uint16_t timeHumanLost        = 0;
-};
-
 // Eyes state
 struct EYES_STATE {
-    byte*   currentFrame;
-    bool    isOpened          = false;
-    int8_t pupilsPosition[2]  = {0, 0};
-    uint8_t pupilsSize[2]     = {2, 2};
+    byte*   currentFrame;               // Current frame pointer
+    bool    isOpened          = false;  // Eye lashes state
+    int8_t focus[2]           = {0, 0}; // Focus gravitation
+    int8_t pupilsPosition[2]  = {0, 0}; // Current focus
+    uint8_t pupilsSize[2]     = {2, 2}; // Pupils size
 };
 
 // Global state store
 struct STATE {
-  ENVIRONMENT_STATE Environment;
   EYES_STATE Eyes;
 };
 
@@ -37,8 +29,4 @@ STATE State = {};
  */
 uint16_t getTime() {
   return millis() / 1000;
-}
-
-int8_t getRandomPointOfInterest () {
-   return random(-2, 2);
 }

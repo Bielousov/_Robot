@@ -6,9 +6,11 @@ Thread eyesAnimationThread = Thread();
 
 AnimationBuffer animationBuffer;
 
-const uint8_t EYES_ANIMATION_FPS = 24;                                // Animation frequency, in FPS
-const uint8_t EYES_ANIMATION_INTERVAL = 1000 / EYES_ANIMATION_FPS;   // Animation frequency, in ms
-const uint8_t EYES_BRIGHTNESS = 0;                                    // LED Brightness
+const uint8_t EYES_ANIMATION_FPS = 20;                                 // Animation frequency, in FPS
+const uint8_t EYES_ANIMATION_INTERVAL = 1000 / EYES_ANIMATION_FPS;    // Animation frequency, in ms
+const uint8_t EYES_ANIMATION_SPEED_BLINK_MULTIPLIER = 1;              // Blink animation speed multiplier
+const uint8_t EYES_ANIMATION_SPEED_PUPILS_MULTIPLIER = 3;             // Pupils movement animation speed multiplier
+const uint8_t EYES_BRIGHTNESS = 1;                                    // LED Brightness
 const uint8_t EYES_ORIGIN_POSITION = BITMAP_SIZE / 2 - 1;                       // Define LED matrix center in 0-based coordinates (3)
 
 // Animation frame sequences
@@ -55,7 +57,7 @@ void closeEyes() {
     updateDecisionsOnEyesClosed();
   
     // Add animation sequence to queue
-    generateFramesSequence(eyeBlinkAnimationBitmap, EYES_CLOSE_ANIMATION_SEQUENCE, sizeof(EYES_CLOSE_ANIMATION_SEQUENCE));
+    generateFramesSequence(eyeBlinkAnimationBitmap, EYES_CLOSE_ANIMATION_SEQUENCE, sizeof(EYES_CLOSE_ANIMATION_SEQUENCE), EYES_ANIMATION_SPEED_BLINK_MULTIPLIER);
 }
 
 void openEyes() {
@@ -63,7 +65,7 @@ void openEyes() {
     State.Eyes.isOpened = true;
 
     // Add animation sequence to queue
-    generateFramesSequence(eyeBlinkAnimationBitmap, EYES_OPEN_ANIMATION_SEQUENCE, sizeof(EYES_OPEN_ANIMATION_SEQUENCE));
+    generateFramesSequence(eyeBlinkAnimationBitmap, EYES_OPEN_ANIMATION_SEQUENCE, sizeof(EYES_OPEN_ANIMATION_SEQUENCE), EYES_ANIMATION_SPEED_BLINK_MULTIPLIER);
 }
 
 /*
@@ -82,8 +84,7 @@ void onEyesBlink() {
  * ======
  */
 void onEyesMove() {
-    uint8_t eyesMovementSpeed = random(2,4);
-    int8_t* newPupilsPosition = State.Environment.pointOfInterest;
+    int8_t* newPupilsPosition = State.Eyes.focus;
     
     while (State.Eyes.pupilsPosition[0] != newPupilsPosition[0] || State.Eyes.pupilsPosition[1] != newPupilsPosition[1]) {
       // Move pupil only 1px in X and Y axis at once until the final position is reached
@@ -93,12 +94,26 @@ void onEyesMove() {
          } else if(State.Eyes.pupilsPosition[i] > newPupilsPosition[i]) {
             State.Eyes.pupilsPosition[i]--;
          }
+
+         generateFrame(State.Eyes.currentFrame, EYES_ANIMATION_SPEED_PUPILS_MULTIPLIER);
       }
-  
-      generateFrame(State.Eyes.currentFrame, eyesMovementSpeed);
     }
 }
 
+/*
+ * Set focus
+ * =========
+ * Sets a focus point that would attract eyes movemet
+ */
+
+void setFocus (int8_t h, int8_t v) {
+  State.Eyes.focus[0] = h;
+  State.Eyes.focus[1] = v;
+}
+
+void setRandomFocus () {
+   setFocus ((int8_t)random(-2, 2), (int8_t)random(-2, 2));
+}
 
 /*
  * LED Rendering
@@ -124,11 +139,12 @@ bool applyPupilMask(uint8_t x, uint8_t y, bool ledPixel) {
 void generateFramesSequence(
     const byte animationBitmap[][BITMAP_SIZE], 
     const uint8_t* animationSequence, 
-    const uint8_t animationSequenceSize
+    const uint8_t animationSequenceSize,
+    const uint8_t animationSppedMultiplier
 ) {
     for (int i = 0; i < animationSequenceSize; i++) {
         byte* frameBitmap = loadBitmapFromProgmem(animationBitmap, animationSequence[i]);
-        generateFrame(frameBitmap, 1);
+        generateFrame(frameBitmap, animationSppedMultiplier);
     }
 }
 
@@ -199,4 +215,3 @@ void onEyesAnimation() {
     byte* frameBitmap = animationBuffer.getFrame();
     drawEyes(frameBitmap);
 }
-

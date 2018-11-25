@@ -5,15 +5,15 @@
 
 struct DECISION {
     uint16_t  lastTime = 0;
-    uint8_t   weight = 0;
+    uint16_t   weight = 0;
 };
 
 struct DECISION_WEIGHT {
   uint8_t min = 0;
-  uint8_t small = 16;
-  uint8_t medium = 32;
-  uint8_t hight = 64;
-  uint8_t max = 255;
+  uint16_t small = 16000;
+  uint16_t medium = 32000;
+  uint16_t hight = 48000;
+  uint16_t max = 64000;
 };
 
 const DECISION_WEIGHT DecisionWeight;
@@ -27,9 +27,8 @@ class Decision {
     public:
         Decision();
 
-        void addWeight(uint8_t weight);
-        void incrementWeight();
-        void setWeight(uint8_t weight);
+        void addWeight(uint16_t weight);
+        void setWeight(uint16_t weight);
         void setWeightInRange(uint16_t value, uint16_t minValue, uint16_t maxValue);
 
         void makeDecision(void callback(), bool resetDecisionOnSuccess);
