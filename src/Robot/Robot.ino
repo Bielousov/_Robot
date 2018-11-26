@@ -10,7 +10,7 @@
 const uint8_t BITMAP_SIZE = 8;
 
 void setup() {  
-  //Serial.begin(9600);
+  Serial.begin(9600);
 
   // Randomize the random function
   randomSeed(analogRead(0));

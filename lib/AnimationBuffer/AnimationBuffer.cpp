@@ -15,13 +15,15 @@ byte* AnimationBuffer::getFrame() {
 }
 
 byte* AnimationBuffer::getFrameBuffer() {
-    if (isQueueEmpty() || animationBufferPointer >= ANIMATION_BUFFER_SIZE - 1) {
-       animationBufferPointer = 0;
-       return animationBuffer[animationBufferPointer];
-   } else {
+    if (isQueueEmpty()) {
+       animationBufferPointer = 1;
+    } else if (animationBufferPointer >= ANIMATION_BUFFER_SIZE - 1) { 
+         animationBufferPointer = ANIMATION_BUFFER_SIZE;
+    } else {
        animationBufferPointer++;
-       return animationBuffer[animationBufferPointer - 1];
-   }
+    }
+
+    return animationBuffer[animationBufferPointer - 1];
 }
 
 bool AnimationBuffer::isQueueEmpty() {

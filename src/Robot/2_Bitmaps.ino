@@ -1,47 +1,65 @@
 #include <avr/pgmspace.h>
 
 // Eye animation frames
-PROGMEM const byte eyeBlinkAnimationBitmap[5][BITMAP_SIZE] = {
-  { B00000000,
+PROGMEM const byte eyeBitmap[1][BITMAP_SIZE] = {{
+  B00111100,
+  B01111110,
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111,
+  B01111110,
+  B00111100
+}};
+
+const uint8_t EYE_BLINK_ANIMATION_SEQUENCE_SIZE = 5;
+PROGMEM const byte eyeBlinkAnimationBitmap[EYE_BLINK_ANIMATION_SEQUENCE_SIZE][BITMAP_SIZE] = {
+  { 
+    B00000000,
     B00000000,
     B00000000,
     B00000000,
     B10000001,
     B01111110,
     B00000000,
-    B00000000 },
-  { B00000000,
+    B00000000 
+  }, { 
+    B00000000,
     B00000000,
     B00000000,
     B00111100,
     B11111111,
     B01111110,
     B00011000,
-    B00000000 },
-  { B00000000,
+    B00000000 
+  }, { 
+    B00000000,
     B00000000,
     B00111100,
     B11111111,
     B11111111,
     B11111111,
     B00111100,
-    B00000000 },
-  { B00000000,
+    B00000000
+  }, {
+    B00000000,
     B01111110,
     B11111111,
     B11111111,
     B11111111,
     B11111111,
     B01111110,
-    B00111100 },
-  { B00111100,
+    B00111100
+  }, { 
+    B00111100,
     B01111110,
     B11111111,
     B11111111,
     B11111111,
     B11111111,
     B01111110,
-    B00111100 }
+    B00111100
+  }
 };
 
 /*

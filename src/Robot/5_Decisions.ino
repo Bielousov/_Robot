@@ -20,7 +20,7 @@ Thread decisionThread = Thread();
 void makeEyesBlinkDecision() {
   if (State.Eyes.isOpened) {
     DecisionState.eyesBlink.addWeight(1000 / DECISION_INTERVAL);
-    DecisionState.eyesBlink.makeDecision(onEyesBlink, true);
+    DecisionState.eyesBlink.makeDecision(blinkEyes, true);
   }
 };
 
@@ -30,7 +30,7 @@ void makeEyesBlinkDecision() {
 */
 void makeEyesMoveDecision() {
   DecisionState.eyesMove.addWeight(1000 / DECISION_INTERVAL);
-  DecisionState.eyesMove.makeDecision(onEyesMove, true);
+  DecisionState.eyesMove.makeDecision(moveEyes, true);
 }
 
 /* 
@@ -40,7 +40,7 @@ void makeEyesMoveDecision() {
     
  */
 void makeEyesWonderDecision() {
-  DecisionState.eyesMove.makeOppositeDecision(setRandomFocus, false);
+  DecisionState.eyesMove.makeOppositeDecision(setRandomPointOfInterest, false);
 }
 
 
@@ -65,6 +65,8 @@ void initDecisions() {
 void runDecisionsThread() {
   if (decisionThread.shouldRun()) {
     decisionThread.run();
+
+    // Serial.println(freeMemory());
   }
 }
 
