@@ -1,0 +1,94 @@
+#include <Decision.h>
+
+const uint16_t DECISION_INTERVAL = 300;   // Decision making frequency, in ms
+const int EYES_BLINK_WEIGHT = 1000;
+const int EYES_MOVE_WEIGHT = 100;
+const int SAY_HELLO_WEIGHT = 5000;
+
+struct DECISION_STATE {
+  Decision eyesBlink;
+  Decision eyesMove;
+  Decision sleepMode;
+  Decision sayHello;
+};
+
+DECISION_STATE DecisionState;
+
+// Decisions thread
+Thread decisionThread = Thread(onDecision, DECISION_INTERVAL);
+
+/*
+   Eyes: Blink Decisions
+   ---------------------
+*/
+void makeEyesBlinkDecision() {
+  if (State.Eyes.isOpened) {
+    DecisionState.eyesBlink.add(EYES_BLINK_WEIGHT);
+    DecisionState.eyesBlink.makeDecision(blinkEyes, true);
+  }
+};
+
+/*
+   Eyes: Move Decisions
+   ---------------------------
+*/
+void makeEyesMoveDecision() {
+  DecisionState.eyesMove.add(EYES_MOVE_WEIGHT);
+  DecisionState.eyesMove.makeDecision(moveEyes, true);
+}
+
+/* 
+ * I tend to focus more on the focus point,
+ * however if the decision to move my eyes hasn't been really strong,
+ * I may experience some eyes wondering syndrome.
+    
+ */
+void makeEyesWonderDecision() {
+  DecisionState.eyesMove.makeLowDecision(setRandomPointOfInterest, false);
+}
+
+
+/*
+ * Decision affecting events
+ */
+ 
+void updateDecisionsOnEyesClosed() {
+    DecisionState.eyesBlink.resetDecision();
+}
+
+
+/*
+   Voice: Say Hello Decision
+   -------------------------
+*/
+
+void makeSayHelloDecision() {
+  DecisionState.sayHello.subtract(SAY_HELLO_WEIGHT);
+  DecisionState.sayHello.makeDecision(sayHello, true);
+}
+
+/*
+   Thread callback
+   ---------------
+*/
+void onDecision() {
+  makeEyesBlinkDecision();
+  makeEyesWonderDecision();
+  makeEyesMoveDecision();
+  makeSayHelloDecision();
+}
+
+/*
+   Asynchronous thread process
+   ===========================
+*/
+void initDecisions() {
+  DecisionState.sayHello.set(32000);
+}
+
+void runDecisionsThread() {
+  if (decisionThread.shouldRun()) {
+     decisionThread.run();
+     freeMemoryLog();
+  }
+}
