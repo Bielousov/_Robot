@@ -27,9 +27,9 @@ class Decision {
     public:
         Decision();
 
-        void addWeight(uint16_t weight);
-        void setWeight(uint16_t weight);
-        void setWeightInRange(uint16_t value, uint16_t minValue, uint16_t maxValue);
+        void add(uint16_t weight);
+        void set(uint16_t weight);
+        void subtract(uint16_t weight);
 
         void makeDecision(void callback(), bool resetDecisionOnSuccess);
         void makeOppositeDecision(void callback(), bool resetDecisionOnSuccess);

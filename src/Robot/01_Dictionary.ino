@@ -1,5 +1,4 @@
 #include <avr/pgmspace.h>
-#include <Dictionary.h>
 #include "Vocab_Special.h"
 #include "Vocab_US_TI99.h"
 

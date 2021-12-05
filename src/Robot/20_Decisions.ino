@@ -1,9 +1,9 @@
 #include <Decision.h>
 
 const uint16_t DECISION_INTERVAL = 300;   // Decision making frequency, in ms
-const int EYES_BLINK_WEIGHT = 1000;
-const int EYES_MOVE_WEIGHT = 100;
-const int SAY_HELLO_WEIGHT = 5000;
+const uint16_t EYES_BLINK_WEIGHT = 1000;
+const uint16_t EYES_MOVE_WEIGHT = 100;
+const uint16_t SAY_HELLO_WEIGHT = 16000;
 
 struct DECISION_STATE {
   Decision eyesBlink;
@@ -44,7 +44,7 @@ void makeEyesMoveDecision() {
     
  */
 void makeEyesWonderDecision() {
-  DecisionState.eyesMove.makeLowDecision(setRandomPointOfInterest, false);
+  DecisionState.eyesMove.makeOppositeDecision(setRandomPointOfInterest, false);
 }
 
 
