@@ -44,7 +44,7 @@ void makeEyesMoveDecision() {
     
  */
 void makeEyesWonderDecision() {
-  DecisionState.eyesMove.makeOppositeDecision(setRandomPointOfInterest, false);
+  DecisionState.eyesMove.makeLowDecision(setRandomPointOfInterest, false);
 }
 
 

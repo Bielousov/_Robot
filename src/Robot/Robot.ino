@@ -26,6 +26,7 @@ void setup() {
   // Randomize the random function
   randomSeed(analogRead(0));
 
+  initAI();
   initEyes();
   initVoice();
 }
