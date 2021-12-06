@@ -2,7 +2,7 @@
  * States Definition
  * =====================
  */
-
+ 
 // Eyes state
 struct EYES_STATE {
     bool    isAnimating          = false;  // Eye lashes state

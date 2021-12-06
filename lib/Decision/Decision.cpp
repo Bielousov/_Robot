@@ -1,13 +1,17 @@
 #include "Decision.h"
 
 Decision::Decision() {
+    state.weight = 0;
+}
 
+Decision::Decision(uint8_t initialWeight) {
+    state.weight = initialWeight;
 }
 
 /*
  * Public methods
  */
-void Decision::add(uint16_t weight) {
+void Decision::add(uint8_t weight) {
     if (state.weight > DecisionWeight.max - weight) {
          state.weight = DecisionWeight.max;
     } else {
@@ -15,11 +19,11 @@ void Decision::add(uint16_t weight) {
     }
 }
 
-void Decision::set(uint16_t weight) {
+void Decision::set(uint8_t weight) {
     state.weight = weight;
 }
 
-void Decision::subtract(uint16_t weight) {
+void Decision::subtract(uint8_t weight) {
     if (state.weight < weight) {
          state.weight = DecisionWeight.min;
     } else {
@@ -43,13 +47,13 @@ void Decision::_makeDecision(void callback(), bool resetDecisionOnSuccess, bool 
 
 // Execute callback if weight is high
 void Decision::makeDecision(void callback(), bool resetDecisionOnSuccess) {
-    bool decisionCondition = state.weight > (uint16_t)random(DecisionWeight.max);
+    bool decisionCondition = state.weight > (uint8_t)random(DecisionWeight.max);
     _makeDecision(callback, resetDecisionOnSuccess, decisionCondition);
 }
 
 // Execute callback if weight is low
 void Decision::makeOppositeDecision(void callback(), bool resetDecisionOnSuccess) {
-    bool decisionCondition = state.weight < (uint16_t)random(DecisionWeight.max);
+    bool decisionCondition = state.weight < (uint8_t)random(DecisionWeight.max);
     _makeDecision(callback, resetDecisionOnSuccess, decisionCondition);
 }
 

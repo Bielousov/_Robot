@@ -13,6 +13,12 @@
  *  The outputs can drive headphones directly, or add a simple audio amplifier to drive a loudspeaker.
  */
 
+// Voice dictionary
+struct INTENT {
+  const uint8_t* greeting[7] = { spt_HELLO, spPAUSE1, spt_HOW, spt_ARE, spt_YOU, spt_DOING, NULL };
+};
+
+
 Talkie Voice;
 
 INTENT Intent;

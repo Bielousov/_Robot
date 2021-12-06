@@ -107,7 +107,7 @@ void NeuralNet::initializeLayers() {
 
         for( j = 0; j < HiddenNodes; j++ ) {    
             ChangeHiddenWeights[i][j] = 0.0;   
-            HiddenWeights[i][j] = 2.0 * ( randomWeight() - 0.5 ) * InitialWeightMax;
+            HiddenWeights[i][j] = randomWeight();
         }
     }
 
@@ -118,7 +118,7 @@ void NeuralNet::initializeLayers() {
 
         for( j = 0; j < OutputNodes; j ++ ) {    
             ChangeOutputWeights[i][j] = 0.0;     
-            OutputWeights[i][j] = 2.0 * ( randomWeight() - 0.5 ) * InitialWeightMax;
+            OutputWeights[i][j] = randomWeight();
         }
     }
 }
@@ -188,7 +188,7 @@ void  NeuralNet::getHiddenLayerActivation() {
     for( i = 0 ; i < HiddenNodes ; i++ ) {    
       Accum = HiddenWeights[InputNodes][i] ;
       for( j = 0 ; j < InputNodes ; j++ ) {
-        Accum += Input[j] * Alpha * HiddenWeights[j][i] ;
+        Accum += Input[j] * HiddenWeights[j][i] ;
       }
       Hidden[i] = activationFunction(Accum);
     }
@@ -270,5 +270,5 @@ void NeuralNet::printOutputActivation() {
 };
 
 float NeuralNet::randomWeight() {
-    return float(random(100))/100;
+    return 2.0 * ( float(random(100))/100 - 0.5 ) * InitialWeightMax;
 }

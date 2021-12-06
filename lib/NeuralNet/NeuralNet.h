@@ -15,41 +15,39 @@ class NeuralNet {
     );
 
     // Config
-    float Alpha = 1;
     float InitialWeightMax = 0.5;
     float LearningRate = 0.3;
     float Momentum = 0.9;
-    int MaxTrainCycles = 65535;
+    uint32_t MaxTrainCycles = 4294967295;
     int ReportFrequencey = 500;
     float Success = 0.001;
 
     void train(
-      const uint8_t *trainData,
+      const float *trainData,
       const float   *targetData,
       const uint8_t patternCount
     );
 
-    float* getActivation(uint8_t *data);
+    float* getActivation(float *data);
 
     // Topology
-    uint8_t HiddenNodes;
-    uint8_t InputNodes;
-    uint8_t OutputNodes;
+    float HiddenNodes;
+    float InputNodes;
+    float OutputNodes;
 
     // Weights and biases
-    uint8_t *Input;
+    float *Input;
     float *Hidden;
     float *Output;
     float **HiddenWeights;        // float HiddenWeights[InputNodes+1][HiddenNodes]
     float **OutputWeights;       
   
   private: // float OutputWeights[HiddenNodes+1][OutputNodes]
-    bool Debug = true;
     float **ChangeHiddenWeights;  // float ChangeHiddenWeights[InputNodes+1][HiddenNodes]
     float **ChangeOutputWeights;  // float ChangeOutputWeights[HiddenNodes+1][OutputNodes]
 
     // Training Data
-    uint8_t **TrainData;          // uint8_t TrainData[PatternCount][InputNodes]
+    float **TrainData;          // uint8_t TrainData[PatternCount][InputNodes]
     float   **TargetData;             // float TargetData[PatternCount][OutputNodes]
     uint8_t PatternCount;
 
@@ -60,13 +58,13 @@ class NeuralNet {
     float *HiddenDelta;
     float *OutputDelta;
     uint8_t *RandomizedIndex;
-    uint16_t TrainingCycle;
+    uint32_t TrainingCycle;
 
     // Logging interface
     HardwareSerial *Serial;
 
     // Reusable variables
-    uint8_t i, j, p, q, r;
+    uint8_t p, q, r;
 
     // Methods
     void initializeLayers();

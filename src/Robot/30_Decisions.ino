@@ -1,15 +1,15 @@
 #include <Decision.h>
 
-const uint16_t DECISION_INTERVAL = 300;   // Decision making frequency, in ms
-const uint16_t EYES_BLINK_WEIGHT = 1000;
-const uint16_t EYES_MOVE_WEIGHT = 100;
-const uint16_t SAY_HELLO_WEIGHT = 16000;
+const uint16_t DECISION_INTERVAL = 250;   // Decision making frequency, in ms
+const uint8_t EYES_BLINK_WEIGHT = 3;
+const uint8_t EYES_MOVE_WEIGHT = 1;
+const uint8_t SAY_HELLO_WEIGHT = 128;
 
 struct DECISION_STATE {
-  Decision eyesBlink;
-  Decision eyesMove;
-  Decision sleepMode;
-  Decision sayHello;
+  Decision eyesBlink = Decision(0);
+  Decision eyesMove = Decision(0);
+  Decision sleepMode = Decision(0);
+  Decision sayHello = Decision(128);
 };
 
 DECISION_STATE DecisionState;
@@ -82,9 +82,6 @@ void onDecision() {
    Asynchronous thread process
    ===========================
 */
-void initDecisions() {
-  DecisionState.sayHello.set(32000);
-}
 
 void runDecisionsThread() {
   if (decisionThread.shouldRun()) {

@@ -28,7 +28,6 @@ void setup() {
 
   initEyes();
   initVoice();
-  initDecisions();
 }
 
 void loop() {
