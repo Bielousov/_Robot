@@ -27,10 +27,10 @@ class Decision {
         Decision();
         Decision(uint8_t weight);
 
-        void add(uint8_t weight);
+        void decrement(uint8_t weight);
+        void increment(uint8_t weight);
         uint8_t get();
         void set(uint8_t weight);
-        void subtract(uint8_t weight);
 
         void makeDecision(void callback(), bool resetDecisionOnSuccess);
         void makeLowDecision(void callback(), bool resetDecisionOnSuccess);

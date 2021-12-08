@@ -23,7 +23,7 @@ Thread decisionThread = Thread(onDecision, DECISION_INTERVAL);
 */
 void makeEyesBlinkDecision() {
   if (State.Eyes.isOpened) {
-    DecisionState.eyesBlink.add(EYES_BLINK_WEIGHT);
+    DecisionState.eyesBlink.increment(EYES_BLINK_WEIGHT);
     DecisionState.eyesBlink.makeDecision(blinkEyes, true);
   }
 };
@@ -33,7 +33,7 @@ void makeEyesBlinkDecision() {
    ---------------------------
 */
 void makeEyesMoveDecision() {
-  DecisionState.eyesMove.add(EYES_MOVE_WEIGHT);
+  DecisionState.eyesMove.increment(EYES_MOVE_WEIGHT);
   DecisionState.eyesMove.makeDecision(moveEyes, true);
 }
 
@@ -63,7 +63,7 @@ void updateDecisionsOnEyesClosed() {
 */
 
 void makeSayHelloDecision() {
-  DecisionState.sayHello.subtract(SAY_HELLO_WEIGHT);
+  DecisionState.sayHello.decrement  (SAY_HELLO_WEIGHT);
   DecisionState.sayHello.makeDecision(sayHello, true);
 }
 

@@ -27,19 +27,20 @@ void Decision::_run(void callback(), bool resetDecisionOnSuccess, bool decisionF
 /*
  * Public methods
  */
-void Decision::add(uint8_t weight) {
-    if (state.weight > DecisionWeight.max - weight) {
-        state.weight = DecisionWeight.max;
-    } else {
-        state.weight += weight;
-    }
-}
 
-void Decision::subtract(uint8_t weight) {
+void Decision::decrement(uint8_t weight) {
     if (state.weight < weight) {
         state.weight = DecisionWeight.min;
     } else {
         state.weight -= weight;
+    }
+}
+
+void Decision::increment(uint8_t weight) {
+    if (state.weight > DecisionWeight.max - weight) {
+        state.weight = DecisionWeight.max;
+    } else {
+        state.weight += weight;
     }
 }
 
