@@ -68,12 +68,18 @@ PROGMEM const byte eyeBlinkAnimationBitmap[][BITMAP_SIZE] = {
  * Helper method to load bitmap from PROGMEM
  * -----------------------------------------
  */
+byte bitmapBuffer[BITMAP_SIZE];
 byte* loadBitmap(const byte bitmap[][BITMAP_SIZE], uint8_t frameIndex) {
-  static byte progmemBitmapBuffer[BITMAP_SIZE];
 
   for (uint8_t y = 0; y < BITMAP_SIZE; y++) {
-    progmemBitmapBuffer[y] = pgm_read_byte_near(&bitmap[frameIndex][y]);
+    bitmapBuffer[y] = pgm_read_byte_near(&bitmap[frameIndex][y]);
   }
 
-  return progmemBitmapBuffer;
+  return bitmapBuffer;
+}
+
+bool bitmapPixel;
+byte loadBitmapPixel(const byte bitmap[BITMAP_SIZE], uint8_t x, uint8_t y) {
+  bitmapPixel = pgm_read_byte_near(&bitmap[y]) & (1 << x);
+  return bitmapPixel;
 }
