@@ -1,9 +1,6 @@
 #include "NeuralNet.h"
 #include "Dictionary.cpp"
 
-// Reusable variables
-static uint8_t p, q, r;
-
 NeuralNet::NeuralNet(
     const uint8_t inputNodes, 
     const uint8_t hiddenNodes,

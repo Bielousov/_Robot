@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <avr/pgmspace.h>
 
 // Text dictionary

@@ -75,6 +75,9 @@ class NeuralNet {
     uint8_t *RandomizedIndex;
     uint32_t TrainingCycle = 0;
 
+    // Reusable variables
+    uint8_t p, q, r;
+
     // Logging interface
     HardwareSerial *Serial;
     Dictionary dictionary;
