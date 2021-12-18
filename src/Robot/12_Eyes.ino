@@ -2,7 +2,7 @@
 #include <LEDMatrixDriver.hpp>
 
 const uint8_t EYES_SEGMENTS = 1;                                      // How many eyes I have
-const uint8_t EYES_ANIMATION_FPS = 30;                                // Animation frequency, in FPS
+const uint8_t EYES_ANIMATION_FPS = 20;                                // Animation frequency, in FPS
 const uint8_t EYES_ANIMATION_SPEED_BLINK_MULTIPLIER = 0;              // Blink animation speed multiplier
 const uint8_t EYES_ANIMATION_SPEED_PUPILS_MULTIPLIER = 4;             // Pupils movement animation speed multiplier
 const uint8_t EYES_BRIGHTNESS = 2;                                    // LED Brightness

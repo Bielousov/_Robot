@@ -1,7 +1,6 @@
 #include "AnimationBuffer.h"
 
 AnimationBuffer::AnimationBuffer() {
-
 }
 
 byte* AnimationBuffer::addFrame(byte* frameBitmap) {
@@ -9,7 +8,10 @@ byte* AnimationBuffer::addFrame(byte* frameBitmap) {
 }
 
 byte* AnimationBuffer::addFrame(byte* frameBitmap, uint8_t frames) {
-    animationPointer++;
+    if (animationPointer < ANIMATION_BUFFER_SIZE - 1) {
+        animationPointer++;
+    }
+
     memcpy(animationQueue[animationPointer], frameBitmap, ANIMATION_BITMAP_SIZE);
     animationMeta[animationPointer] = frames;
     return animationQueue[animationPointer];
@@ -22,7 +24,10 @@ byte* AnimationBuffer::popFrame() {
         animationMeta[0]--;
     } else {
         // Shift queue array
-        memmove(animationQueue[0], animationQueue[1], ANIMATION_BITMAP_SIZE * animationPointer);
+        if (animationPointer > 0) {
+            memcpy(&animationMeta[0], &animationMeta[1], sizeof(animationMeta[0]) * animationPointer);
+            memcpy(animationQueue[0], animationQueue[1], sizeof(animationQueue[0]) * animationPointer);
+        }
         animationPointer--;
     }
 

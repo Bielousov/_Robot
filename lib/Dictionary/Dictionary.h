@@ -4,8 +4,6 @@
 #include <Arduino.h>
 #include <avr/pgmspace.h>
 
-static char strBuffer[32];
-
 class Dictionary {
     private:
         char Buffer[32];
